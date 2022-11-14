@@ -17,13 +17,13 @@ html(lang='en')
           i.fas.fa-user-secret.me-2
           | EMS
         .list-group.list-group-flush.my-3
-          a.list-group-item.list-group-item-action.bg-transparent.second-text.active(href='rola')
+          a.list-group-item.list-group-item-action.bg-transparent.second-text.active(href='userlist')
             i.fas.fa-tachometer-alt.me-2
             | UserList
-          a.list-group-item.list-group-item-action.bg-transparent.second-text.fw-bold(href='moto')
+          a.list-group-item.list-group-item-action.bg-transparent.second-text.fw-bold(href='userrole')
             i.fas.fa-project-diagram.me-2
             | Role
-          a.list-group-item.list-group-item-action.bg-transparent.text-danger.fw-bold(href='#')
+          a.list-group-item.list-group-item-action.bg-transparent.text-danger.fw-bold(href='login')
             i.fas.fa-power-off.me-2
             | Logout
       // /#sidebar-wrapper
@@ -45,10 +45,11 @@ html(lang='en')
                   button#close.close(type='button', aria-label='Close')
                     span(aria-hidden='true') &times;
                 .modal-body
-                  form#forms.text-center(action='/rola',method="post",autocomplete='off')
+                  form#forms.text-center(action='javascript:alert("success");',method='POST',autocomplete='off')
+                    .form-group#idd.d-flex.pb-2
+                      input#ids(type="hidden",name="ids")
+                      input#value(type="hidden" ,value='new',name="value")
                     .form-group.d-flex.pb-2 
-                      input#format(type="hidden" name="format" )
-                      input#ids(type="hidden" name="ids")
                       label.mt-2(for='Name') FirstName  
                       input#fl.w-50.form-control(type='text',name='fname',placeholder='First Name')
                     .form-group.d-flex.pb-2 
@@ -106,101 +107,17 @@ html(lang='en')
 
     // JavaScript Bundle with Popper
     script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js', integrity='sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3', crossorigin='anonymous')
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js')
     script(type='text/javascript', charset='utf8', src='https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js')
+    |  
+    script(src='./js/userlist.js', charset='utf-8')
+
     
     
     
     
-    script.
-        let el = document.getElementById("wrapper");
-        let toggleButton = document.getElementById("menu-toggle");
-        toggleButton.onclick = function () {
-        el.classList.toggle("toggled");
-        };
 
 
-        $("#btn").on('click',(()=>{
-        $("#goal").modal('show')
-        }));
-        $(".close").on("click",(()=>{
-        $("#goal").modal("hide")
-        }))
-        $('.reload').click(()=>{
-          $("#goal").modal("hide")
-          $('#example').DataTable().ajax.reload(null,false);
-        })
-         function EditWindow(){
-          $('.modal-title').text('Edit')
-          $('.reload').text('Save')
-          $('#format').val('EDIT');
-          $("#goal").modal('show')  
-          }
-
-        
-        function deletebyid(id){
-           if(confirm('Are you want to delete'))
-             $.ajax({
-               type: "post",
-               url:'/deleteData/:id',
-               data:{
-                id: id
-               },
-               dataType:'json',
-               
-             }).reload()
-             else
-               $('#example').ajax.reload();  
-            }
-
-
-        $(document).ready(function () {
-         let requestUrl = "http://localhost:3000/roladata";
-         $('#example').DataTable({
-          ajax: {
-              url: requestUrl,
-              dataSrc: "",  
-              },
-              "columns": [
-              { "title": "Id", "data": "id" },
-              { "title": "FirstName", "data": "FirstName" },
-              { "title": "LastName", "data": "LastName" },
-              { "title": "Role", "data": "Role" },
-              { "title": "E-Mail", "data": "E_MailId" },
-              { "title": "Phone_NO", "data": "PhoneNo" },
-              { "title": "Location", "data": "Location" },
-              { "title":  "Edit","data": "id",
-                 render:((data)=>{
-                  return '<button class="btn btn-warning btn-sm cool" onclick="userbyid(\''+ data +'\');">Edit</button>'})},
-              { "title":  "Delete","data": "id",
-                 render:((data)=>{
-                  return '<button class="btn btn-danger btn-sm " onclick="deletebyid(\''+ data +'\');">Delete</button>'})},
-              ]      
-              }).reload()
-          })
-            function userbyid(id){
-              
-              $.ajax({
-                  url: '/edit/:id',
-                  data: { id: id },
-                  method: "post",
-                  dataType: "json",
-                  success: function (result) {
-                  EditWindow()
-                  console.log(result)
-                  $('#ids').val(result.id);
-                  $('#fl').val(result.FirstName);
-                  $('#lname').val(result.LastName);
-                  $('#roles').val(result.Role);
-                  $('#Email').val(result.E_MailId);
-                  $('#phones').val(result.PhoneNo);
-                  $('#locate').val(result.Location);
-               },
-               error:((err)=>{
-                    console.log(err)
-               })
-             })
-            }
 
            
 

@@ -2,8 +2,9 @@ const express=require('express');
 const app=express();
 const { Sequelize } = require('sequelize');
 const path=require('path');
-const bcrypt=require('bcrypt')
+const bcrypt=require('bcrypt');
 const pug=require('pug');
+const cors=require('cors');
 const bodyparser=require('body-parser'); 
 const PORT=3000;
 
@@ -39,7 +40,7 @@ emp= await bcrypt.compare(password,person.Password)
       if(person.UserName=='admin'){
         if(pass){
           console.log(pass)
-          res.redirect('/Dashboard')
+          res.redirect('/userlist')
           }else{
           res.send({msg:'USerName or Password Error'}) 
           }
@@ -85,15 +86,9 @@ app.get('/data',(req,res)=>{
        .catch((err)=>{console.log(err)})
 })
 
-app.get('/user',(req,res)=>{
-    res.render('user')
-})
-app.get('/userrole',(req,res)=>{
-  res.render('userrole')
-})
 
 
-//      Admin DashBoard
+//     Employee Admin DashBoard
 app.get('/Dashboard',(req,res)=>{
   res.render('main')
 })
@@ -139,24 +134,24 @@ app.get('/Payroledata',(req,res)=>{
 
 //Corrections
 
-app.get('/moto',(req,res)=>{
+app.get('/userrole',(req,res)=>{
   res.render('role')
 })
-app.get('/motodata',(req,res)=>{
+app.get('/userroledata',(req,res)=>{
   Userrole.findAll()
   .then((data)=>{res.send(data)})
   .catch((err)=>{console.log(err)})
 })
-app.post('/moto',(req,res)=>{
+app.post('/userrole',(req,res)=>{
   let {Role}=req.body 
   Userrole.create({
     Role:Role
   })
-  res.redirect('/moto')
+  res.redirect('/userrole')
 })
 
  
-app.get('/rola',async(req,res)=>{
+app.get('/userlist',async(req,res)=>{
   let lists,files;
 try{
   lists= await Userrole.findAll({ attributes:['Role']});
@@ -166,12 +161,12 @@ catch{
    console.log(error)
 }
 })
-app.get('/roladata',(req,res)=>{
+app.get('/userlistdata',(req,res)=>{
   User.findAll()
   .then((data)=>{res.send(data)})
   .catch((err)=>{console.log(err)})
 })
-app.post('/rola',async(req,res)=>{
+app.post('/userlist',async(req,res)=>{
   let roles,users;
   try{
   let FirstName=req.body.fname,
@@ -196,9 +191,10 @@ app.post('/rola',async(req,res)=>{
   users=two;
   let three=  await roles.addUser(users)
   console.log(three)
-
+res.send("Added!").status(200)
+}catch(error){
+  console.log(error)
 }
-  catch{console.log('err')}
 })
 // Employe.hasMany(Payrole)
 // Payrole.belongsTo(Employe)
@@ -207,28 +203,20 @@ Userrole.hasMany(User)
 User.belongsTo(Userrole)
 dataBase.sync({alter:true})
 
-app.get('/hasmany/:id',(req,res)=>{
-  let user=Userrole.findAll({ 
-     include:[{
-      model:User
-     }],
-    where: { id:req.params['id']}
-})
-.then((data)=>{res.status(200).send(data)})
-.catch((err)=>{console.log(err)})
-})
 
 
-app.post('/edit/:id',(req,res)=>{
+app.post('/edits',(req,res)=>{
    let ids=req.body.id
    User.findOne({where:{ id:ids} })
    .then((data)=>{
      res.send(data)
    })
 })
-app.post('/updates/:id',(req,res)=>{
-   let ids=req.body.id
-   let=FirstName=req.body.fname,
+app.put('/updates/:id',(req,res)=>{
+
+  req.params.id
+  let ids=req.body.ids
+      FirstName=req.body.fname,
       LastName=req.body.lname,
       Role=req.body.role,
       E_MailId=req.body.mail,
@@ -238,12 +226,13 @@ app.post('/updates/:id',(req,res)=>{
 
 })
 
-app.post('/deleteData/:id',(req,res)=>{
+app.delete('/deleteData',(req,res)=>{
     let value=req.body.id
     User.destroy({where:{id: value }})
     .then((data)=>{
         console.log(data)
     })
+    res.send('deleted').Status( 200 )
     .catch((err)=>{console.log(err)})
 })
 
