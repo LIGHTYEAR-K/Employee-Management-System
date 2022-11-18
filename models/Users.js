@@ -11,6 +11,12 @@ const User = dataBase.define('User',{
     FirstName:{
         type:Sequelize.DataTypes.STRING
     },
+    UserName:{
+        type:Sequelize.DataTypes.STRING
+    },
+    Password:{
+        type:Sequelize.DataTypes.STRING
+    },
     LastName:{
         type:Sequelize.DataTypes.STRING
     },
@@ -37,5 +43,4 @@ const User = dataBase.define('User',{
 User.associate=models=>{
 	User.belongsTo(models.Userrole)
 }
-
 module.exports = User

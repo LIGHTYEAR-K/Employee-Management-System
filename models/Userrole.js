@@ -10,11 +10,15 @@ const Userrole= dataBase.define('UserRole',{
     },
     Role:{
         type:Sequelize.DataTypes.STRING,
+    },
+    Menu: {
+        type: Sequelize.JSONB,
+        defaultValue: {}
     }
 },  
     {
      freezeTableName:true,
-     timestamps:true
+     timestamps:false
 })
  
 Userrole.associate=models=>{

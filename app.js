@@ -15,7 +15,7 @@ const Employe=require('./models/Employe');
 const Payrole=require('./models/Payrole');
 const Userrole=require('./models/Userrole')
 const User=require('./models/Users')
-
+let datas;
 
 
 
@@ -37,7 +37,7 @@ app.get('/register',(req,res)=>{
 app.post('/login',async(req,res)=>{
   const{username,password}=req.body
   try{
-    let person= await Login.findOne({ where : { UserName: username } })
+    let person= await User.findOne({ where : { UserName: username } })
     if (person){
       pass= await bcrypt.compare(password,person.Password)
       if(pass){
@@ -48,7 +48,7 @@ app.post('/login',async(req,res)=>{
       }
     }
     else{
-      res.render('newl',{info:'Sorry,we could not authenticate you.Try again Later'})
+      res.render('newl',{info:'Oops,Something went Wrong.Try Again Later!'})
   }
   } 
   catch(error){
@@ -66,17 +66,16 @@ app.post('/register',(req,res)=>{
       opass=req.body.pass
       pass=bcrypt.hashSync(req.body.pass, 10)
       repass=req.body.re_pass
- if(opass===pass){
+ if(opass===repass){
   Login.create({
     UserName:user,
     EmailId:email,
     PhoneNo:phone,
     Password:pass
   })
-.then((data)=>{res.render('register',{hi:hide})})
+.then((data)=>{console.log(data)})
 .catch((err)=>{console.log(err)})
 res.redirect('/login')
-  
  }
  else{
   res.render('register',{err:'NOT Verifyed plz Match the Password'})
@@ -151,29 +150,46 @@ app.get('/userroledata',(req,res)=>{
   .then((data)=>{res.send(data)})
   .catch((err)=>{console.log(err)})
 })
-app.post('/userrole',(req,res)=>{
-  let {Role}=req.body 
-  Userrole.create({
-    Role:Role
-  })
-  res.redirect('/userrole')
+app.post('/userrole',async(req,res)=>{
+  let {Role}=req.body
+  try{
+    let roles= await Userrole.findOne({ where : { Role: Role } })
+    if (roles){
+      res.send({success:true,error: 'Already Exist'}).status(200)
+    }
+    else{
+      await Userrole.create({
+        Role:Role
+      })
+      res.send({success:true}).status( 200 )
+  }
+  } 
+  catch(error){
+    console.log(error)
+    res.status(404).send("Error")
+  }
+ 
 })
 
  
 app.get('/userlist',async(req,res)=>{
-  let lists,files;
+  let lists;
 try{
   lists= await Userrole.findAll({ attributes:['Role']});
   res.render('userlist',{passed:lists})
 }
-catch{
+catch(error){
    console.log(error)
 }
 })
-app.get('/userlistdata',(req,res)=>{
-  User.findAll()
-  .then((data)=>{res.send(data)})
-  .catch((err)=>{console.log(err)})
+app.get('/userlistdata',async(req,res)=>{
+  try{
+  let data=await User.findAll()
+  res.send(data).status(200)
+  }
+  catch(err){
+    console.log(err)
+  }
 })
 app.post('/userlist',async(req,res)=>{
   let roles,users;
@@ -181,17 +197,25 @@ app.post('/userlist',async(req,res)=>{
   let FirstName=req.body.fname,
       LastName=req.body.lname,
       Role=req.body.role,
+      username=req.body.username,
+      pass=req.body.passw,
+      passw=bcrypt.hashSync(req.body.passw, 10)
       E_MailId=req.body.mail,
       PhoneNo=req.body.phoneno,
       Location=req.body.city
-  
-  await User.create({
-    FirstName:FirstName,
-    LastName:LastName,
-    Role:Role,
-    E_MailId:E_MailId,
-    PhoneNo:PhoneNo,
-    Location:Location
+    if(!FirstName || !username || !passw || !PhoneNo || !Role){
+      res.send({success: false, error: 'Required Fields are Empty'})
+      }
+    else{
+        await User.create({
+          FirstName:FirstName,
+          LastName:LastName,
+          UserName:username,
+          Password:passw,
+          Role:Role,
+          E_MailId:E_MailId,
+          PhoneNo:PhoneNo,
+          Location:Location
   })
 
   let one= await Userrole.findOne({where:{Role:Role}})
@@ -200,7 +224,8 @@ app.post('/userlist',async(req,res)=>{
   users=two;
   let three=  await roles.addUser(users)
   console.log(three)
-res.send("Added!").status(200)
+res.send({success:true}).status(200)
+  }
 }catch(error){
   console.log(error)
 }
@@ -218,31 +243,33 @@ app.post('/edits',(req,res)=>{
    let ids=req.body.id
    User.findOne({where:{ id:ids} })
    .then((data)=>{
-     res.send(data)
+     res.send(data).status(200)
    })
 })
 app.put('/updates/:id',(req,res)=>{
-
-  req.params.id
   let ids=req.body.ids
       FirstName=req.body.fname,
       LastName=req.body.lname,
       Role=req.body.role,
+      username=req.body.username,
+      // pass=bcrypt.hashSync(req.body.pass, 10)
       E_MailId=req.body.mail,
       PhoneNo=req.body.phoneno,
       Location=req.body.city
-  User.update({FirstName:FirstName,LastName:LastName,Role:Role,E_MailId:E_MailId,PhoneNo:PhoneNo,Location:Location},{where:{id:ids}})
+  User.update({FirstName:FirstName,LastName:LastName,UserName:username,Role:Role,E_MailId:E_MailId,PhoneNo:PhoneNo,Location:Location},{where:{id:ids}})
+  res.send({success: true, User: User}).status(200)
 
 })
 
-app.delete('/deleteData',(req,res)=>{
+app.delete('/deleteData',async(req,res)=>{
+    try{
     let value=req.body.id
-    User.destroy({where:{id: value }})
-    .then((data)=>{
-        console.log(data)
-    })
-    res.send('deleted').Status( 200 )
-    .catch((err)=>{console.log(err)})
+    await User.destroy({where:{id: value }})
+    res.send({success:true}).status( 200 )
+    }
+   catch(err){
+    console.log(err)
+   }
 })
 
 
