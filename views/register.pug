@@ -1,0 +1,68 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(http-equiv='X-UA-Compatible', content='ie=edge')
+    title Sign Up Form
+    // Font Icon
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/material-design-iconic-font/2.2.0/css/material-design-iconic-font.min.css')
+    // Main css
+    link(rel='stylesheet', href='css/register.css')
+  body
+    .main
+      // Sign up form
+      section.signup
+        .container
+          .signup-content
+            .signup-form
+              h2.form-title Sign Up
+              form#register-form.register-form(method='POST',autocomplete='off')
+                .form-group
+                  label(for='name')
+                    i.zmdi.zmdi-account.material-icons-name
+                  input#name(type='text', name='name', placeholder='Your UserName')
+                .form-group
+                  label(for='email')
+                    i.zmdi.zmdi-email-open
+                  input#email(type='email', name='email', placeholder='Your Email')
+                .form-group
+                  label(for='PhoneNo')
+                    i.zmdi.zmdi-phone
+                  input#phone(type='text', name='phone', placeholder='Your PhoneNo',minlength='10',maxlength='10')
+                .form-group
+                  label(for='pass')
+                    i.zmdi.zmdi-lock
+                  input#pass(type='password', name='pass', placeholder='Password')
+                .form-group
+                  label(for='re-pass')
+                    i.zmdi.zmdi-lock-outline
+                  input#re_pass(type='password', name='re_pass', placeholder='Repeat your password')
+                  span#msg Not Matched
+                  span#msg #{err}
+                .form-group.form-button
+                  input#signup.form-submit(type='submit', name='signup')
+                 
+            .signup-image
+              figure
+                img(src='signup-image.jpg', alt='sing up image')
+              a.signup-image-link(href='/login') Already Have Account
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js') 
+    script.
+        $(document).ready(()=>{
+        $('#msg').hide()
+        $('#re_pass').keyup(()=>{
+        let pass=$('#pass').val()
+        let repass=$('#re_pass').val()
+        if(pass!=repass){
+            $('#re_pass').css('border-color','red')
+            $('#msg').show()
+        }
+        if(pass===repass){
+        $('#re_pass').css('border-color','black')
+        $('#msg').hide()
+        }
+        })
+        })
+
+
